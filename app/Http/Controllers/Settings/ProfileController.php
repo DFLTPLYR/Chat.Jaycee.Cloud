@@ -60,4 +60,21 @@ class ProfileController extends Controller
 
         return redirect('/');
     }
+
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|max:2048',
+        ]);
+
+        $path = $request->file('photo')->store('profile_photos', 'public');
+
+        $user = Auth::user();
+        $user->update([
+            'profile_photo' => $path,
+        ]);
+
+        return back()->with('success', 'Profile photo updated!');
+    }
+
 }
