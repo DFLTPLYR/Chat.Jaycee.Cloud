@@ -43,7 +43,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div
                 class="relative h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border grid grid-rows-10 p-2">
                 <PlaceholderPattern />
-                <section class="row-span-9 h-[calc(100vh-700px)] overflow-y-auto">
+                <section class="row-span-9 h-[calc(100vh-48vh)] overflow-y-auto">
                     <h1 v-for="(e, index) in Array(100)" :key="index"> test {{ index }}</h1>
                 </section>
                 <div class="row-span-1 p-2 gap-2 rounded-2xl bg-blue-300/5 flex flex-row items-center justify-center">
