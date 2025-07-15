@@ -8,7 +8,7 @@ trait UserHasProfilePhoto
 {
     public function hasProfilePhoto(): bool
     {
-        return !empty($this->profile_photo) && Storage::exists($this->profile_photo);
+        return !empty($this->profile_photo) && Storage::disk('public')->exists($this->profile_photo);;
     }
 
     public function getProfilePhotoUrlAttribute(): string|null

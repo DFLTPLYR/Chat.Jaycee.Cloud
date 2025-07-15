@@ -111,7 +111,7 @@ onMounted(() => {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 select-none">
+        <div class="flex h-full flex-1 flex-col justify-between gap-4 overflow-x-auto rounded-xl p-4 select-none">
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
                 <div
                     class="relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
@@ -148,9 +148,8 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-
             <div
-                class="flex h-[calc(100vh-40vh)] flex-col border border-sidebar-border/70 rounded-xl p-2 dark:border-sidebar-border">
+                class="flex h-[calc(90vh-22rem)] flex-col border border-sidebar-border/70 rounded-xl p-2 dark:border-sidebar-border">
                 <PlaceholderPattern />
 
                 <!-- Messages Section -->

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\ProfileAvatarRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -36,6 +38,23 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        return to_route('profile.edit');
+    }
+
+    public function updateAvatar(ProfileAvatarRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Store the file with a randomized name
+        $file = $request->file('avatar');
+        $randomName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+
+        $path = $file->storeAs('avatars', $randomName, 'public');
+
+        $user->update([
+            'profile_photo' => $path,
+        ]);
 
         return to_route('profile.edit');
     }
