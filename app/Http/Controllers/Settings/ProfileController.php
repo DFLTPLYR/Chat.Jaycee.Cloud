@@ -89,6 +89,7 @@ class ProfileController extends Controller
         $path = $request->file('photo')->store('profile_photos', 'public');
 
         $user = Auth::user();
+
         $user->update([
             'profile_photo' => $path,
         ]);
