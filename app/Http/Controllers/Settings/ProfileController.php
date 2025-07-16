@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Str;
@@ -50,7 +51,12 @@ class ProfileController extends Controller
         $file = $request->file('avatar');
         $randomName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
 
-        $path = $file->storeAs('avatars', $randomName, 'public');
+        // $path = $file->storeAs('avatars', $randomName, 's3');
+
+        $path = Storage::disk('r2')->putFile(
+            'avatar',
+            $file,
+        );
 
         $user->update([
             'profile_photo' => $path,

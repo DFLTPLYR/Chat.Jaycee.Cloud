@@ -11,7 +11,6 @@ import { onMounted } from 'vue';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 import { ref } from 'vue';
 import { watch } from 'vue';
-import InputError from '@/components/InputError.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -101,7 +100,7 @@ onMounted(() => {
             OnlineUsers.value = OnlineUsers.value.filter(u => u.id !== user.id);
         })
         .listenForWhisper("IsTyping", (user: WebsocketUsers) => console.log(user))
-        .listen('GlobalMessage', e => console.log('msg:', e.message));
+        .listen('GlobalMessage', (e: any) => console.log('msg:', e.message));
 });
 
 </script>
