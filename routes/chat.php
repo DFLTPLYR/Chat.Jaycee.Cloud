@@ -8,7 +8,7 @@ use Inertia\Inertia;
 Route::get('chat', function () {
     return Inertia::render('Chats',
         [
-            'latestMessages' => Inertia::always(fn () => Message::latest()->get()),
+            'latestMessages' => Inertia::lazy(fn () => Message::latest()->get()),
         ]);
 })->middleware(['auth', 'verified'])->name('chat');
 
