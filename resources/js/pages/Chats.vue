@@ -2,8 +2,8 @@
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/vue3';
-import { WebsocketUsers } from '@/types/dashboard';
+import { Head, usePage, WhenVisible } from '@inertiajs/vue3';
+import { WebsocketUsers, ChatPayload, ChatMessage } from '@/types/chat';
 import { useEchoPresence } from '@laravel/echo-vue';
 import axios from 'axios';
 import { Send } from 'lucide-vue-next';
@@ -14,17 +14,24 @@ import { watch } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Chat',
+        href: '/chat',
     },
 ];
 
+const props = defineProps<{
+    latestMessages: ChatMessage[];
+}>();
+
 const page = usePage();
 const channel = useEchoPresence('OnlineUsers');
+const messageArray = ref<ChatMessage[]>([]);
 const OnlineUsers = ref<WebsocketUsers[]>([]);
 const message = ref('');
+
 const messageError = ref('');
 const isTyping = ref(false)
+
 let typingTimeout: ReturnType<typeof setTimeout>
 
 function sendMessage() {
@@ -42,7 +49,7 @@ function sendMessage() {
     axios
         .post(route('send-message'), { message: text })
         .then(res => {
-            console.log(res.data)
+            // console.log(res)
         })
         .catch(err => {
             const errs = err.response?.data?.errors
@@ -51,16 +58,12 @@ function sendMessage() {
                 ?? 'An unexpected error occurred.'
             setTimeout(() => {
                 messageError.value = ''
-            }, 1000)
+            }, 10000)
             return
         })
         .finally(() => {
             sendTypingStatus(false)
         })
-}
-
-function testApi() {
-    axios.post('test')
 }
 
 function sendTypingStatus(state: boolean) {
@@ -69,6 +72,11 @@ function sendTypingStatus(state: boolean) {
         state,
     })
 };
+
+function newMessageHandler(payload: ChatPayload) {
+    const { message } = payload
+    return messageArray.value?.push(message);
+}
 
 watch(message, (val) => {
     if (val !== '' && !isTyping.value) {
@@ -85,6 +93,14 @@ watch(message, (val) => {
     }, 2000)
 });
 
+watch(
+    () => props.latestMessages,
+    (newMessages) => {
+        if (newMessages) messageArray.value = [...newMessages];
+    },
+    { immediate: true }
+);
+
 onMounted(() => {
     channel
         .channel()
@@ -100,14 +116,14 @@ onMounted(() => {
             OnlineUsers.value = OnlineUsers.value.filter(u => u.id !== user.id);
         })
         .listenForWhisper("IsTyping", (user: WebsocketUsers) => console.log(user))
-        .listen('GlobalMessage', (e: any) => console.log('msg:', e.message));
+        .listen('GlobalMessage', (payload: ChatPayload) => newMessageHandler(payload));
 });
 
 </script>
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Chats" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col justify-between gap-4 overflow-x-auto rounded-xl p-4 select-none">
@@ -152,14 +168,28 @@ onMounted(() => {
                 <PlaceholderPattern />
 
                 <!-- Messages Section -->
-                <section class="flex-1 overflow-y-auto space-y-2">
-                    <h1 v-for="(e, index) in Array(100)" :key="index">test {{ index }}</h1>
-                </section>
+                <section class="flex-1 flex flex-col-reverse h-full gap-2 overflow-x-hidden overflow-y-auto">
+                    <WhenVisible data="latestMessages">
+                        <template #fallback>
+                            <div>Loading...</div>
+                        </template>
 
+                        <template v-for="(context, indx) in messageArray.reverse()" :key="indx">
+                            <div class="w-full flex items-center-safe"
+                                :class="$page.props.auth.user.id === context.sender_id ? 'justify-end' : 'justify-start'">
+                                <div class="w-fit max-w-7xl bg-white/5 break-words px-4 py-1 rounded-2xl"
+                                    :class="$page.props.auth.user.preference.text_size">
+                                    {{ context.message }}
+                                </div>
+                            </div>
+                        </template>
+                    </WhenVisible>
+                </section>
                 <!-- Input Section -->
                 <div class="mt-2 flex items-center gap-2 rounded-2xl bg-blue-300/5 p-2 transition duration-300">
                     <Input :placeholder="messageError ? messageError : 'Send Message here'" class="flex-1"
-                        v-model="message" :class="{ 'ring-1 ring-red-500': messageError }" @keydown.enter="testApi" />
+                        v-model="message" :class="{ 'ring-1 ring-red-500': messageError }"
+                        @keydown.enter="sendMessage" />
                     <button class="rounded-2xl bg-white/5 p-2 transition-all duration-300 hover:bg-white/50"
                         @click="sendMessage">
                         <Send />

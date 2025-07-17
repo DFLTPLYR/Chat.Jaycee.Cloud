@@ -8,10 +8,10 @@ trait UserHasProfilePhoto
 {
     public function hasProfilePhoto(): bool
     {
-        return !empty($this->profile_photo) && Storage::disk('r2')->exists($this->profile_photo);
+        return ! empty($this->profile_photo) && Storage::disk('r2')->exists($this->profile_photo);
     }
 
-    public function getProfilePhotoUrlAttribute(): string|null
+    public function getProfilePhotoUrlAttribute(): ?string
     {
         return $this->hasProfilePhoto()
             ? Storage::disk('r2')->url($this->profile_photo)

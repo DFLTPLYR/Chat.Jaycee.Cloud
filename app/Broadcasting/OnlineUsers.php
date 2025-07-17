@@ -15,16 +15,16 @@ class OnlineUsers
         //
     }
 
-/**
+    /**
      * Authenticate the user's access to the channel.
      */
     public function join(User $user): array|bool
     {
         if (Auth::check()) {
             return [
-            'id' => $user->id,
-            'user' => $user->name,
-            'profile_picture' => $user->profile_photo_url];
+                'id' => $user->id,
+                'user' => $user->name,
+                'profile_picture' => $user->profile_photo_url];
         }
     }
 }

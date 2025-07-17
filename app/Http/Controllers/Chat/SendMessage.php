@@ -4,22 +4,30 @@ namespace App\Http\Controllers\Chat;
 
 use App\Events\GlobalMessage;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Broadcast;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Message\SendMessageRequest;
+use App\Models\Message;
+use ConsoleTVs\Profanity\Facades\Profanity;
+use Illuminate\Support\Facades\Auth;
 
 class SendMessage extends Controller
 {
+    public function create(SendMessageRequest $request)
+    {
+        $validated = $request->validated();
 
+        if (empty($validated['message'])) {
+            return response()->json([
+                'error' => 'Message cannot be empty',
+                'data' => $validated,
+            ], 400);
+        }
 
-    public function create(Request $request) {
-        $request->validate([
-            'message' => ['required', 'string', 'max:255'],
-        ]);
+        $cleaned = Profanity::blocker($validated['message'])->filter();
 
-        broadcast(new GlobalMessage($request->message))->toOthers();
+        $message = Auth::user()->messages()->create(['message' => $cleaned]);
 
-        return response()->json(['status' => 200, 'data' => $request->message]);
+        broadcast(new GlobalMessage($message));
+
+        return response()->json(201);
     }
-
 }

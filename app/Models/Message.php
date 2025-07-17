@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Encrypted;
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
@@ -10,5 +11,9 @@ class Message extends Model
         'sender_id',
         'reply_to_id',
         'message',
+    ];
+
+    protected $casts = [
+        'message' => Encrypted::class,
     ];
 }

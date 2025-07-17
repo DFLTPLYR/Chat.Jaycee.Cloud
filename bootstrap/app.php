@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
+            'sanitize' => \App\Http\Middleware\InputSanitizerMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

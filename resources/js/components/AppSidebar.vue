@@ -10,8 +10,8 @@ import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Chat',
+        href: '/chat',
         icon: LayoutGrid,
     }
 ];
@@ -36,7 +36,7 @@ const mainNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
+                        <Link :href="route('chat')">
                         <AppLogo />
                         </Link>
                     </SidebarMenuButton>

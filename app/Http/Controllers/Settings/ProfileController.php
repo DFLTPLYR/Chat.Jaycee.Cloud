@@ -10,9 +10,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -49,7 +49,7 @@ class ProfileController extends Controller
 
         // Store the file with a randomized name
         $file = $request->file('avatar');
-        $randomName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        $randomName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
 
         // $path = $file->storeAs('avatars', $randomName, 's3');
 
@@ -102,5 +102,4 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Profile photo updated!');
     }
-
 }

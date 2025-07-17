@@ -33,6 +33,16 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    preference: UserPreferrence;
+}
+
+export interface UserPreferrence {
+    id: number;
+    user_id: number;
+    text_size: string;
+    notifications: boolean;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
