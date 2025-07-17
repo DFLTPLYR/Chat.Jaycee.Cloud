@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Chat;
 use App\Events\GlobalMessage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Message\SendMessageRequest;
-use App\Models\Message;
 use ConsoleTVs\Profanity\Facades\Profanity;
 use Illuminate\Support\Facades\Auth;
 

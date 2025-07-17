@@ -7,6 +7,7 @@ import { type BreadcrumbItem } from '@/types';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
+import ChatTextSizeTabs from '@/components/ChatTextSizeTabs.vue';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -25,6 +26,10 @@ const breadcrumbItems: BreadcrumbItem[] = [
             <div class="space-y-6">
                 <HeadingSmall title="Appearance settings" description="Update your account's appearance settings" />
                 <AppearanceTabs />
+            </div>
+            <div class="space-y-6">
+                <HeadingSmall title="Chat message settings" description="Update your account's Chat message settings" />
+                <ChatTextSizeTabs />
             </div>
         </SettingsLayout>
     </AppLayout>

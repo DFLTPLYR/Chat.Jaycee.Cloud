@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileAvatarRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Http\Requests\Settings\UpdateProfilePreferenceRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,20 +87,17 @@ class ProfileController extends Controller
         return redirect('/');
     }
 
-    public function updatePhoto(Request $request)
+    /**
+     * Update the user's text size preference.
+     */
+    public function updateTextSizePreference(UpdateProfilePreferenceRequest $request)
     {
-        $request->validate([
-            'photo' => 'required|image|max:2048',
-        ]);
-
-        $path = $request->file('photo')->store('profile_photos', 'public');
-
         $user = Auth::user();
 
-        $user->update([
-            'profile_photo' => $path,
+        $user->preference->update([
+            'text_size' => $request->input('text_size'),
         ]);
 
-        return back()->with('success', 'Profile photo updated!');
+        return back()->with('test');
     }
 }

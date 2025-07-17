@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserPreference extends Model
 {
-
     protected $fillable = [
         'text_size',
-        'notifications'
+        'notifications',
     ];
 
     protected $casts = [
