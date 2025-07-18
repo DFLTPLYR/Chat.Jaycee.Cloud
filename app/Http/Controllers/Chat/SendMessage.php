@@ -21,7 +21,9 @@ class SendMessage extends Controller
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             return response()->json([
-                'message' => ['Too many messages. Please wait before sending again.']
+                'errors' => [
+                    'messages' => ['Too many messages. Please wait before sending again.'],
+                ],
             ], 429);
         }
 
