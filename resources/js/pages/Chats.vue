@@ -8,10 +8,8 @@ import { WebsocketUsers, ChatPayload, ChatMessage } from '@/types/chat';
 import { useEchoPresence } from '@laravel/echo-vue';
 import axios from 'axios';
 import { Send } from 'lucide-vue-next';
-import { onMounted } from 'vue';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import { ref } from 'vue';
-import { watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,6 +27,8 @@ const channel = useEchoPresence('OnlineUsers');
 const messageArray = ref<ChatMessage[]>([]);
 const OnlineUsers = ref<WebsocketUsers[]>([]);
 const message = ref('');
+const tempRandomId = ref<number | null>(null);
+let tempIdCounter = -1;
 
 const messageError = ref('');
 const isTyping = ref(false)
@@ -47,12 +47,28 @@ function sendMessage() {
     }
 
     message.value = ''
+
+    tempRandomId.value = tempIdCounter--;
+
+    const tempMessage = {
+        message: text,
+        sender_id: page.props.auth.user.id,
+        updated_at: new Date,
+        created_at: new Date,
+        id: tempRandomId.value,
+    }
+    messageArray.value?.unshift(tempMessage);
+
     axios.post(route('send-message'), { message: text })
         .then(res => {
-            // console.log(res)
+            messageArray.value = messageArray.value.filter(
+                msg => msg.id !== tempRandomId.value
+            );
+            tempRandomId.value = null;
         })
         .catch(err => {
             const errs = err.response?.data?.errors
+            console.log(errs)
             messageError.value = errs?.message?.[0]
                 ?? err.response?.data?.message
                 ?? 'An unexpected error occurred.'
@@ -175,9 +191,9 @@ onMounted(() => {
                         </template>
                         <template v-for="(context, indx) in messageArray" :key="indx">
                             <div class="w-full flex items-center-safe"
-                                :class="$page.props.auth.user.id === context.sender_id ? 'justify-end' : 'justify-start'">
-                                <div class="w-fit max-w-7xl bg-white/5 break-words px-4 py-1 rounded-2xl"
-                                    :class="$page.props.auth.user.preference.text_size">
+                                :class="[$page.props.auth.user.id === context.sender_id ? 'justify-end' : 'justify-start']">
+                                <div class="w-fit max-w-7xl break-words px-4 py-1 rounded-2xl"
+                                    :class="[$page.props.auth.user.preference.text_size, tempRandomId === context.id ? 'animate-pulse bg-yellow-100 to-yellow-400 text-black' : 'bg-white/5']">
                                     <motion.h1 :animate="{ scale: 1 }" :exit="{ opacity: 0, scale: 0 }"
                                         :initial="{ opacity: 0 }" :whileInView="{ opacity: 1 }">
                                         {{ context.message }}

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Message\SendMessageRequest;
 use ConsoleTVs\Profanity\Facades\Profanity;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 class SendMessage extends Controller
 {
@@ -14,11 +15,14 @@ class SendMessage extends Controller
     {
         $validated = $request->validated();
 
-        if (empty($validated['message'])) {
+        $key = 'send-message:'.Auth::id();
+
+        RateLimiter::hit($key);
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
             return response()->json([
-                'error' => 'Message cannot be empty',
-                'data' => $validated,
-            ], 400);
+                'message' => ['Too many messages. Please wait before sending again.']
+            ], 429);
         }
 
         $cleaned = Profanity::blocker($validated['message'])->filter();
