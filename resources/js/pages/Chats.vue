@@ -94,8 +94,9 @@ function newMessageHandler(payload: ChatPayload) {
     return messageArray.value?.unshift(message);
 }
 
-watch(message, (val) => {
-    if (val !== '' && !isTyping.value) {
+function handleTyping(event: HTMLInputElement) {
+    const value = event.value
+    if (value !== '' && !isTyping.value) {
         isTyping.value = true
         sendTypingStatus(true)
     }
@@ -107,7 +108,7 @@ watch(message, (val) => {
             sendTypingStatus(false)
         }
     }, 2000)
-});
+}
 
 watch(
     () => props.latestMessages,
@@ -206,8 +207,8 @@ onMounted(() => {
                 <!-- Input Section -->
                 <div class="mt-2 flex items-center gap-2 rounded-2xl bg-blue-300/5 p-2 transition duration-300">
                     <Input :placeholder="messageError ? messageError : 'Send Message here'" class="flex-1"
-                        v-model="message" :class="{ 'ring-1 ring-red-500': messageError }"
-                        @keydown.enter="sendMessage" />
+                        v-model="message" :class="{ 'ring-1 ring-red-500': messageError }" @keydown.enter="sendMessage"
+                        @keypress="(e: Event) => handleTyping(e.target as HTMLInputElement)" />
                     <button class="rounded-2xl bg-white/5 p-2 transition-all duration-300 hover:bg-white/50"
                         @click="sendMessage">
                         <Send />
