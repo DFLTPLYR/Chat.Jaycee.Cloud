@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Chat;
 use App\Events\GlobalMessage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Message\SendMessageRequest;
-use ConsoleTVs\Profanity\Facades\Profanity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Blaspsoft\Blasp\Facades\Blasp;
 
 class SendMessage extends Controller
 {
@@ -27,7 +27,7 @@ class SendMessage extends Controller
             ], 429);
         }
 
-        $cleaned = Profanity::blocker($validated['message'])->filter();
+        $cleaned = Blasp::check($validated['message'])->getCleanString();
 
         $message = Auth::user()->messages()->create(['message' => $cleaned]);
 
