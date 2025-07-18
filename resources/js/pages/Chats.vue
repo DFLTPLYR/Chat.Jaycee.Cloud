@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { motion } from "motion-v"
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, usePage, WhenVisible } from '@inertiajs/vue3';
+import { Deferred, Head, usePage } from '@inertiajs/vue3';
 import { WebsocketUsers, ChatPayload, ChatMessage } from '@/types/chat';
 import { useEchoPresence } from '@laravel/echo-vue';
 import axios from 'axios';
@@ -46,8 +47,7 @@ function sendMessage() {
     }
 
     message.value = ''
-    axios
-        .post(route('send-message'), { message: text })
+    axios.post(route('send-message'), { message: text })
         .then(res => {
             // console.log(res)
         })
@@ -75,7 +75,7 @@ function sendTypingStatus(state: boolean) {
 
 function newMessageHandler(payload: ChatPayload) {
     const { message } = payload
-    return messageArray.value?.push(message);
+    return messageArray.value?.unshift(message);
 }
 
 watch(message, (val) => {
@@ -169,21 +169,23 @@ onMounted(() => {
 
                 <!-- Messages Section -->
                 <section class="flex-1 flex flex-col-reverse h-full gap-2 overflow-x-hidden overflow-y-auto">
-                    <WhenVisible data="latestMessages">
+                    <Deferred data="latestMessages">
                         <template #fallback>
                             <div>Loading...</div>
                         </template>
-
-                        <template v-for="(context, indx) in messageArray.reverse()" :key="indx">
+                        <template v-for="(context, indx) in messageArray" :key="indx">
                             <div class="w-full flex items-center-safe"
                                 :class="$page.props.auth.user.id === context.sender_id ? 'justify-end' : 'justify-start'">
                                 <div class="w-fit max-w-7xl bg-white/5 break-words px-4 py-1 rounded-2xl"
                                     :class="$page.props.auth.user.preference.text_size">
-                                    {{ context.message }}
+                                    <motion.h1 :animate="{ scale: 1 }" :exit="{ opacity: 0, scale: 0 }"
+                                        :initial="{ opacity: 0 }" :whileInView="{ opacity: 1 }">
+                                        {{ context.message }}
+                                    </motion.h1>
                                 </div>
                             </div>
                         </template>
-                    </WhenVisible>
+                    </Deferred>
                 </section>
                 <!-- Input Section -->
                 <div class="mt-2 flex items-center gap-2 rounded-2xl bg-blue-300/5 p-2 transition duration-300">
