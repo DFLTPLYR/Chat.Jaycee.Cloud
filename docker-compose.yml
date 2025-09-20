@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  app:
+    image: bitnami/laravel:11
+    container_name: supabasechat-app
+    restart: unless-stopped
+    volumes:
+      - .:/app
+    networks:
+      - supabasechat
+    depends_on:
+      - redis
+    ports:
+      - '8000:8000'
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/database/database.sqlite
+      - CACHE_STORE=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: ['sh', '-c', '[ -d vendor ] || composer install && php artisan serve --host=0.0.0.0 --port=8000']
+
+  redis:
+    image: redis:7-alpine
+    container_name: supabasechat-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - supabasechat
+
+  node:
+    image: node:20-alpine
+    container_name: supabasechat-node
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - .:/app
+    networks:
+      - supabasechat
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - '5173:5173'
+    environment:
+      - VITE_HOST=0.0.0.0
+      - VITE_PORT=5173
+
+  queue:
+    image: bitnami/laravel:11
+    container_name: supabasechat-queue
+    restart: unless-stopped
+    command: ['sh', '-c', 'composer install && php artisan queue:work --verbose --tries=3 --timeout=90']
+    volumes:
+      - .:/app
+    networks:
+      - supabasechat
+    depends_on:
+      - app
+      - redis
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/database/database.sqlite
+      - CACHE_STORE=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+networks:
+  supabasechat:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local
